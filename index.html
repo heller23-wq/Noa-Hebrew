@@ -475,8 +475,8 @@ const PUPS=[
  {id:'gretel',he:'גְּרֶטֶל',le:'לִגְרֶטֶל',en:'Gretel',m:false},
  {id:'maya',he:'מָאיָה',le:'לְמָאיָה',en:'Maya',m:false,breed:'golden',breedEn:'a golden retriever'},
  {id:'tamar',he:'תָּמָר',le:'לְתָמָר',en:'Tamar',m:false,breed:'dalmatian',breedEn:'a dalmatian'},
- {id:'uri',he:'אוּרִי',le:'לְאוּרִי',en:'Uri',m:true,breed:'corgi',breedEn:'a corgi'},
- {id:'itai',he:'אִיתַי',le:'לְאִיתַי',en:'Itai',m:true,breed:'husky',breedEn:'a husky'},
+ {id:'uri',he:'אוּרִי',le:'לְאוּרִי',en:'Uri',sayEn:'Oori',m:true,breed:'corgi',breedEn:'a corgi'},
+ {id:'itai',he:'אִיתַי',le:'לְאִיתַי',en:'Itai',sayEn:'Ee-tie',m:true,breed:'husky',breedEn:'a husky'},
 ];
 const NEEDS=[
  {id:'n_hungry',m:'רָעֵב',f:'רְעֵבָה',he:'רעב · רעבה',tr:"ra'ev · re'eva",en:'hungry',pic:'🍽️',care:'bakbuk'},
@@ -674,7 +674,7 @@ $('replayBtn').onclick=()=>{if(lastSay)say(lastSay)};
 function sayWorld(k){
   if(k==='house')say([en("Ziggy and Gretel's House. Play Fetch with the dogs, or the memory game!",'ziggy'),he('הבית של זיגי וגרטל')]);
   else if(k==='valley')say([en('Rainbow Valley. Help the unicorn build a rainbow, or count the stars!','gretel'),he('עמק הקשת','gretel')]);
-  else if(k==='gym')say([en('Gymnastics Hall! Play Shimon Says, and learn your body parts!','gretel'),he('אולם ההתעמלות','gretel')]);
+  else if(k==='gym')say([en('Gymnastics Hall! Play Simon Says, and learn your body parts!','gretel'),he('אולם ההתעמלות','gretel')]);
   else if(k==='nursery')say([en('The puppy nursery! The baby puppies need you to look after them!','gretel'),he('גַּן הַגּוּרִים','gretel')]);
   else say([en('Picnic Park! Feed Ziggy at the picnic, and pop the animal bubbles!','ziggy'),he('פיקניק בפארק','ziggy')]);
 }
@@ -884,7 +884,7 @@ function picOptions(box,items,cls='opt'){
 async function playShimon(level=maxLevel('shimon')){
   const g=newGame(7,'shimon',level);
   $('play').innerHTML=`<div class="perf" id="perf">🤸‍♀️</div><div class="opts" id="opts"></div><div class="do-it" id="doit" hidden></div>`;
-  await say([en("Let's play Shimon Says! Shimon is the Hebrew name for Simon. Listen to what Shimon says, tap the right picture, then do it yourself!",'gretel')]);
+  await say([en("Let's play Simon Says, in Hebrew! In Hebrew it's called",'gretel'),he('שִׁמְעוֹן אוֹמֵר','gretel'),en('Listen, tap the right picture, then do it yourself!','gretel')]);
   let prev=null;
   for(g.round=0;g.round<g.rounds;g.round++){
     if(g.dead)return;drawProgress();$('doit').hidden=true;$('perf').className='perf';$('perf').textContent='🤸‍♀️';
@@ -892,7 +892,7 @@ async function playShimon(level=maxLevel('shimon')){
     if(!st(target).seen){await introduce(target,'word',g);if(g.dead)return}
     const opts=picOptions($('opts'),shuffle([target,...sample(ACTIONS.filter(w=>w!==target),L3(g,[2,3,3]))]));
     say([he('שמעון אומר','gretel'),he(hw(target),'gretel')]);
-    await choose(opts,target,()=>say([he('נַסִּי שׁוּב','gretel'),en('Try again! Shimon says…','gretel'),he(hw(target),'gretel')]));
+    await choose(opts,target,()=>say([he('נַסִּי שׁוּב','gretel'),en('Try again!','gretel'),he('שִׁמְעוֹן אוֹמֵר','gretel'),he(hw(target),'gretel')]));
     if(g.dead)return;
     $('opts').innerHTML='';const pf=$('perf');pf.textContent=target.pic;void pf.offsetWidth;pf.className='perf '+target.anim;
     $('doit').hidden=false;$('doit').textContent='Your turn! '+target.tr;
@@ -944,7 +944,7 @@ async function playPicnic(level=maxLevel('picnic')){
     f.style.setProperty('--dx',(dr.right-dr.width*.15-r.left-r.width/2)+'px');f.style.setProperty('--dy',(dr.top+dr.height*.4-r.top-r.height/2)+'px');
     document.body.appendChild(f);setTimeout(()=>f.remove(),1000);
     d.classList.add('wag');
-    await say([he('תודה!','ziggy'),...(g.round===0?[en('Toda means thank you!','gretel')]:[]),he(rnd(PRAISE_HE),'gretel')],false);
+    await say([he('תודה!','ziggy'),...(g.round===0?[he('תּוֹדָה','gretel'),en('means thank you!','gretel')]:[]),he(rnd(PRAISE_HE),'gretel')],false);
     d.classList.remove('wag');
   }
   g.round=g.rounds;drawProgress();finishGame(g);
@@ -1139,21 +1139,21 @@ function playWardrobe(level=maxLevel('wardrobe')){
   return dogGame({id:'wardrobe',level,rounds:6,set:CLOTHES,bg:'#f6ecff',
     intro:g=>[en("Dress-up time! Ziggy is a boy and Gretel is a girl. In Hebrew, words change for boys and girls. When Ziggy wants something, we say",'gretel'),he('רוֹצֶה','ziggy'),
       en('When Gretel wants something, we say','gretel'),he('רוֹצָה','gretel'),
-      en(g.level===1?'Listen, and tap the clothes they want!':g.level===2?'Listen, tap the clothes, then tap who wants them!':"This time I won't say their names. Listen for hu, that means he, and hi, that means she!",'gretel')],
+      ...(g.level===1?[en('Listen, and tap the clothes they want!','gretel')]:g.level===2?[en('Listen, tap the clothes, then tap who wants them!','gretel')]:[en("This time I won't say their names. Listen for",'gretel'),he('הוּא','gretel'),en('that means he, and','gretel'),he('הִיא','gretel'),en('that means she!','gretel')])],
     prompt:(who,w,g)=>[he(`${subj(who,g)} ${WANT[who]} ${hw(w)}`,'gretel')],
     done:async(who,w,g)=>{Stage.wear(who,w.acc);Stage.act(who,'shake').then(()=>Stage.act(who,'happy'));
       const v=(WEAR_SPECIAL[w.id]||WEARV)[who];
-      await say([he(`${HE_NAME[who]} ${v} ${hw(w)}`,who),...(g.round===0&&!WEAR_SPECIAL[w.id]?[en(who==='ziggy'?'Ziggy is a boy, so we say lovesh.':'Gretel is a girl, so we say loveshet.',who)]:[]),he(rnd(PRAISE_HE),who)],false)},
+      await say([he(`${HE_NAME[who]} ${v} ${hw(w)}`,who),...(g.round===0&&!WEAR_SPECIAL[w.id]?[en(who==='ziggy'?'Ziggy is a boy, so we say':'Gretel is a girl, so we say',who),he(WEARV[who],who)]:[]),he(rnd(PRAISE_HE),who)],false)},
   });
 }
 /* ---------- GAME: Dinner Time (food, hungry / eats for a boy and a girl) ---------- */
 function playDinner(level=maxLevel('dinner')){
   return dogGame({id:'dinner',level,rounds:6,set:DOGFOOD,bg:'#fff3dc',
     intro:g=>[en("Dinner time! The dogs are hungry. A hungry boy is",'ziggy'),he('רָעֵב','ziggy'),en('and a hungry girl is','gretel'),he('רְעֵבָה','gretel'),
-      en(g.level===1?'Listen, and tap the food they want!':g.level===2?'Listen, tap the food, then tap who wants it!':"Now listen for hu, he, and hi, she!",'ziggy')],
+      ...(g.level===1?[en('Listen, and tap the food they want!','ziggy')]:g.level===2?[en('Listen, tap the food, then tap who wants it!','ziggy')]:[en("This time I won't say their names. Listen for",'gretel'),he('הוּא','gretel'),en('that means he, and','gretel'),he('הִיא','gretel'),en('that means she!','gretel')])],
     prompt:(who,w,g)=>{const d=DRINKS.includes(w.id);return [he(`${subj(who,g)} ${(d?THIRSTY:HUNGRY)[who]}. ${PRON[who]} ${WANT[who]} ${hw(w)}`,'gretel')]},
     done:async(who,w,g)=>{const d=DRINKS.includes(w.id);const eat=Stage.act(who,d?'drink':'eat',{food:w.pic});
-      await say([he(`${HE_NAME[who]} ${(d?DRINKV:EATV)[who]} ${hw(w)}`,who),he('טָעִים!',who),...(g.round===0?[en(who==='ziggy'?(d?'Ziggy is drinking. For a boy we say shote.':'Ziggy is eating. For a boy we say ochel.'):(d?'Gretel is drinking. For a girl we say shota.':'Gretel is eating. For a girl we say ochelet.'),who)]:[])],false);
+      await say([he(`${HE_NAME[who]} ${(d?DRINKV:EATV)[who]} ${hw(w)}`,who),he('טָעִים!',who),...(g.round===0?[en(who==='ziggy'?(d?'Ziggy is drinking. For a boy we say':'Ziggy is eating. For a boy we say'):(d?'Gretel is drinking. For a girl we say':'Gretel is eating. For a girl we say'),who),he((d?DRINKV:EATV)[who],who)]:[])],false);
       await eat},
   });
 }
@@ -1288,14 +1288,14 @@ const Nursery=(()=>{
 })();
 // the lines the nursery says, kept together so the voice recorder can list them all
 const NUR={
-  intro:l=>[en(l===1?"Welcome to the puppy nursery! The puppies need you. Listen to what each puppy needs, and look after them!":l===2?"Puppy nursery! This time, listen in Hebrew. What does the puppy need?":"Two puppies at once! Listen for hu, that means he, and hi, that means she. Then tap the right puppy.",'gretel')],
-  meet:pp=>[en(pp.breedEn?`This is ${pp.en}! ${pp.m?'He':'She'} is ${pp.breedEn} puppy.`:`Look! It's baby ${pp.en}!`,pp.m?'ziggy':'gretel'),he(pp.he,pp.m?'ziggy':'gretel')],
+  intro:l=>[en(l===1?"Welcome to the puppy nursery! The puppies need you. Listen to what each puppy needs, and look after them!":l===2?"Puppy nursery! This time, listen in Hebrew. What does the puppy need?":"Two puppies at once! Listen for",'gretel'),...(l===3?[he('הוּא','gretel'),en('that means he, and','gretel'),he('הִיא','gretel'),en('that means she. Then tap the right puppy.','gretel')]:[])],
+  meet:pp=>[en(pp.breedEn?`This is ${pp.sayEn||pp.en}! ${pp.m?'He':'She'} is ${pp.breedEn} puppy.`:`Look! It's baby ${pp.en}!`,pp.m?'ziggy':'gretel'),he(pp.he,pp.m?'ziggy':'gretel')],
   need:(pp,nd,l)=>{const g=pp.m?'m':'f';
     const s=nd.cold?(l===3?`קַר ${pp.m?'לוֹ':'לָהּ'}`:`קַר ${pp.le}`):`${l===3?(pp.m?'הוּא':'הִיא'):pp.he} ${nd[g]}`;
     const q=pp.m?'מָה הוּא צָרִיךְ?':'מָה הִיא צְרִיכָה?';
-    return l===1?[he(s,'gretel'),en(`${pp.en} is ${nd.en}! What does ${pp.m?'he':'she'} need?`,'gretel')]:[he(s,'gretel'),he(q,'gretel')]},
+    return l===1?[he(s,'gretel'),en(`${pp.sayEn||pp.en} is ${nd.en}! What does ${pp.m?'he':'she'} need?`,'gretel')]:[he(s,'gretel'),he(q,'gretel')]},
   care:(pp,cid)=>[he(`${pp.he} ${CARE_DO[cid][pp.m?'m':'f']}`,'gretel')],
-  happy:(pp,first)=>[he(`עַכְשָׁו ${pp.he} ${pp.m?'שָׂמֵחַ':'שְׂמֵחָה'}!`,'gretel'),...(first?[en(`Now ${pp.en} is happy!`,'gretel')]:[])],
+  happy:(pp,first)=>[he(`עַכְשָׁו ${pp.he} ${pp.m?'שָׂמֵחַ':'שְׂמֵחָה'}!`,'gretel'),...(first?[en(`Now ${pp.sayEn||pp.en} is happy!`,'gretel')]:[])],
 };
 const CAREWORDS=()=>['bakbuk','mita','ambatya','meil','dubi'].map(id=>[...NURSERY_W,...HOUSE,...CLOTHES].find(w=>w.id===id));
 async function meetPup(pp){
